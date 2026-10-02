@@ -34,7 +34,11 @@ To compile and run the application locally, follow these steps:
    ```bash
    ./gradlew clean compileJava
    ```
-5. To run the application locally, either:
+5. The application needs a PostgreSQL database to connect to. If you're running the app directly (via your IDE or `./gradlew bootRun`), Gradle does not start it for you. The `db` service in the compose file intentionally does not expose port 5432 outside the container cluster, so for local development start a standalone Postgres container instead, with the port published on your machine:
+   ```bash
+   docker run -d --name workshop-organizer-db -p 5432:5432 -e POSTGRES_USER=<DB_USER> -e POSTGRES_PASSWORD=<DB_PWD> -e POSTGRES_DB=<DBNAME> postgres:13
+   ```
+6. To run the application locally, either:
    Execute the main method in the Application class from your IDE.
    Use the Spring Boot Gradle Plugin :
    ```bash
@@ -42,7 +46,7 @@ To compile and run the application locally, follow these steps:
    ```
    For production, package the application as WAR and use a tomcat server
 
-To run correctly the application with docker after you building it with tag workshop-organizer, run the following
+To run correctly the application with docker (both the app and its database) after you building it with tag workshop-organizer, run the following
 
 ```bash
 docker compose up -d
