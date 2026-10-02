@@ -29,14 +29,17 @@ To compile and run the application locally, follow these steps:
 
 1. Ensure you have JDK 21 installed.
 2. Clone this repository.
-3. Navigate to the project root directory.
+3. Navigate to the project root directory and create your environment file from the template (see [Configuration](#configuration)):
+   ```bash
+   cp .env.example .env
+   ```
 4. Execute the following command to compile the Java code :
    ```bash
    ./gradlew clean compileJava
    ```
 5. The application needs a PostgreSQL database to connect to. If you're running the app directly (via your IDE or `./gradlew bootRun`), Gradle does not start it for you. The `db` service in the compose file intentionally does not expose port 5432 outside the container cluster, so for local development start a standalone Postgres container instead, with the port published on your machine:
    ```bash
-   docker run -d --name workshop-organizer-db -p 5432:5432 -e POSTGRES_USER=<DB_USER> -e POSTGRES_PASSWORD=<DB_PWD> -e POSTGRES_DB=<DBNAME> postgres:13
+   docker run -d --name workshop-organizer-db -p 5432:5432 --env-file .env postgres:13
    ```
 6. To run the application locally, either:
    Execute the main method in the Application class from your IDE.
@@ -46,15 +49,30 @@ To compile and run the application locally, follow these steps:
    ```
    For production, package the application as WAR and use a tomcat server
 
-To run correctly the application with docker (both the app and its database) after you building it with tag workshop-organizer, run the following
+To run correctly the application with docker (both the app and its database), create the `.env` file (see [Configuration](#configuration)), build the image with tag workshop-organizer, then start the stack:
 
 ```bash
+docker build -t workshop-organizer .
 docker compose up -d
 ```
 
+The API is then available on http://localhost:8080. PostgreSQL data is kept in the `db-data` volume, and the application waits for the database health check before starting.
+
 ## Configuration
 
-You can configure the application with these environment variables
+Database credentials are defined in a `.env` file at the project root (not versioned). Copy the template and adjust the values:
+
+```bash
+cp .env.example .env
+```
+
+- POSTGRES_DB: Database name
+- POSTGRES_USER: Database user name
+- POSTGRES_PASSWORD: Database user password
+
+`docker compose` and the application (when run locally) both read this file.
+
+You can also override the datasource with these environment variables (the compose file sets them from the `.env` values)
 
 - SPRING_DATASOURCE_URL: JDBC URI for DB access (ex. jdbc:postgresql://db:5432/mydatabase)
 - SPRING_DATASOURCE_USERNAME: Database user name used by the application

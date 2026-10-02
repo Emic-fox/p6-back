@@ -34,3 +34,5 @@ bin
 # ================================
 gradle.properties
 README.md
+.env
+.env.example
