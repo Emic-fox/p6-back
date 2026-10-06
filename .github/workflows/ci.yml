@@ -43,12 +43,24 @@ jobs:
         run: bash ./run-tests.sh
 
       # Affiche un résumé directement sur la page du run
-      - name: Résumé des tests
-        if: always() # Même si les tests échouent
+      # Les attributs JUnit diffèrent selon l'outil : Gradle écrit
+      # tests/skipped/failures/errors, karma-junit-reporter tests/errors/failures (sans skipped).
+      - name: Résumé des tests (Gradle)
+        if: always() && steps.project.outputs.type == 'gradle' # Même si les tests échouent
         run: |
           echo "## Résultats des tests" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           grep -ho 'tests="[0-9]*" skipped="[0-9]*" failures="[0-9]*" errors="[0-9]*"' \
+            test-results/*.xml >> "$GITHUB_STEP_SUMMARY" \
+            || echo "Aucun rapport trouvé" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Résumé des tests (npm)
+        if: always() && steps.project.outputs.type == 'npm' # Même si les tests échouent
+        run: |
+          echo "## Résultats des tests" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep -ho 'tests="[0-9]*" errors="[0-9]*" failures="[0-9]*"' \
             test-results/*.xml >> "$GITHUB_STEP_SUMMARY" \
             || echo "Aucun rapport trouvé" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
