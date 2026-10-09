@@ -1,0 +1,3 @@
+# Les scripts shell doivent rester en LF pour s'exécuter sur les runners Linux
+*.sh text eol=lf
+gradlew text eol=lf

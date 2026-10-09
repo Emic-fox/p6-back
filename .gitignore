@@ -41,3 +41,6 @@ out/
 java-generated/
 ### Local environment ###
 .env
+
+# Rapports de tests générés par run-tests.sh
+test-results/
